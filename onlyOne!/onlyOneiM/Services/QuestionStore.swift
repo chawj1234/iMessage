@@ -4,63 +4,83 @@ class QuestionStore {
     static let shared = QuestionStore()
     
     private let userDefaults: UserDefaults
-    private let lastQuestionDateKey = "lastQuestionDate"
-    private let lastQuestionIdKey = "lastQuestionId"
-    private let usedQuestionIdsKey = "usedQuestionIds"
+    private let appGroupId = "group.com.Wonjun.onlyOne-"
+    private let questionIdKey = "TodayQuestionId"
+    private let questionDateKey = "QuestionDate"
+    private let usedQuestionIdsKey = "UsedQuestionIds"
     
     private init() {
-        guard let userDefaults = UserDefaults(suiteName: "group.com.Wonjun.OnlyOne.foriMessage") else {
-            fatalError("Failed to initialize UserDefaults with App Group")
+        guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
+            fatalError("Failed to create UserDefaults with App Group: \(appGroupId)")
         }
         self.userDefaults = userDefaults
     }
     
     func getTodayQuestion() -> Question {
-        let today = Calendar.current.startOfDay(for: Date())
-        let lastDate = userDefaults.object(forKey: lastQuestionDateKey) as? Date ?? Date.distantPast
+        userDefaults.synchronize()
         
-        // 날짜가 바뀌었으면 새로운 질문 선택
-        if !Calendar.current.isDate(lastDate, inSameDayAs: today) {
-            let usedIds = getAllUsedQuestionIds()
-            let availableQuestions = Question.samples.filter { !usedIds.contains($0.id) }
-            
-            // 모든 질문을 다 사용했으면 초기화
-            let question = availableQuestions.isEmpty ? 
-                Question.samples.randomElement()! :
-                availableQuestions.randomElement()!
-            
-            // 새 질문 저장
-            userDefaults.set(today, forKey: lastQuestionDateKey)
-            userDefaults.set(question.id, forKey: lastQuestionIdKey)
-            markQuestionAsUsed(question.id)
-            
-            return question
+        let today = dateKey(for: Date())
+        let savedDate = userDefaults.string(forKey: questionDateKey) ?? ""
+        
+        print("iMessage App - Today: \(today)")
+        print("iMessage App - Saved Date: \(savedDate)")
+        
+        if savedDate == today {
+            // 오늘 이미 설정된 질문이 있는 경우
+            if let questionId = userDefaults.string(forKey: questionIdKey),
+               let question = Question.samples.first(where: { $0.id == questionId }) {
+                print("iMessage App - Existing question: \(question.id) - \(question.text)")
+                return question
+            }
         }
         
-        // 오늘 이미 질문이 있으면 그 질문 반환
-        if let lastQuestionId = userDefaults.string(forKey: lastQuestionIdKey),
-           let question = Question.samples.first(where: { $0.id == lastQuestionId }) {
-            return question
+        // 새로운 질문 선택
+        return selectNewQuestion(for: today)
+    }
+    
+    private func selectNewQuestion(for dateKey: String) -> Question {
+        let usedIds = Set(userDefaults.stringArray(forKey: usedQuestionIdsKey) ?? [])
+        let availableQuestions = Question.samples.filter { !usedIds.contains($0.id) }
+        
+        print("iMessage App - Used IDs: \(usedIds)")
+        print("iMessage App - Available questions: \(availableQuestions.count)")
+        
+        let selectedQuestion: Question
+        if availableQuestions.isEmpty {
+            // 모든 질문을 사용했으면 처음부터 다시 시작
+            selectedQuestion = Question.samples.randomElement()!
+            userDefaults.removeObject(forKey: usedQuestionIdsKey)
+            print("iMessage App - Reset and selected: \(selectedQuestion.id)")
+        } else {
+            selectedQuestion = availableQuestions.randomElement()!
+            print("iMessage App - New question selected: \(selectedQuestion.id)")
         }
         
-        // 기본값으로 랜덤 질문 반환
-        return Question.samples.randomElement()!
+        // 새 질문 저장
+        userDefaults.set(selectedQuestion.id, forKey: questionIdKey)
+        userDefaults.set(dateKey, forKey: questionDateKey)
+        
+        // 사용된 질문 ID 추가
+        var newUsedIds = usedIds
+        newUsedIds.insert(selectedQuestion.id)
+        userDefaults.set(Array(newUsedIds), forKey: usedQuestionIdsKey)
+        
+        userDefaults.synchronize()
+        
+        print("iMessage App - Final selected question: \(selectedQuestion.id) - \(selectedQuestion.text)")
+        return selectedQuestion
     }
     
-    private func getAllUsedQuestionIds() -> Set<String> {
-        let ids = userDefaults.array(forKey: usedQuestionIdsKey) as? [String] ?? []
-        return Set(ids)
-    }
-    
-    private func markQuestionAsUsed(_ questionId: String) {
-        var ids = getAllUsedQuestionIds()
-        ids.insert(questionId)
-        userDefaults.set(Array(ids), forKey: usedQuestionIdsKey)
+    private func dateKey(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
     
     func resetUsedQuestions() {
         userDefaults.removeObject(forKey: usedQuestionIdsKey)
-        userDefaults.removeObject(forKey: lastQuestionDateKey)
-        userDefaults.removeObject(forKey: lastQuestionIdKey)
+        userDefaults.removeObject(forKey: questionDateKey)
+        userDefaults.removeObject(forKey: questionIdKey)
+        userDefaults.synchronize()
     }
 } 

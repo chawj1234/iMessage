@@ -57,6 +57,12 @@ class MessagesViewController: MSMessagesAppViewController {
         updateQuestion()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // 앱이 나타날 때마다 질문을 새로고침
+        updateQuestion()
+    }
+    
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
@@ -136,27 +142,14 @@ class MessagesViewController: MSMessagesAppViewController {
     @objc private func handleTap() {
         let question = questionStore.getTodayQuestion()
         
-        // 메시지 생성
-        let message = MSMessage()
-        let layout = MSMessageTemplateLayout()
+        // 텍스트 메시지 생성
+        let questionText = "\(question.emoji) \(question.text)"
         
-        // 메시지 내용 설정
-        layout.image = renderMessageImage()
-        layout.caption = "\(question.emoji) \(question.text)"
-        message.layout = layout
-        
-        // 메시지 전송
-        activeConversation?.insert(message) { error in
+        // 텍스트 메시지 전송
+        activeConversation?.insertText(questionText) { error in
             if let error = error {
-                print("Failed to insert message: \(error.localizedDescription)")
+                print("Failed to send message: \(error.localizedDescription)")
             }
-        }
-    }
-    
-    private func renderMessageImage() -> UIImage? {
-        let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
-        return renderer.image { context in
-            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
         }
     }
     
