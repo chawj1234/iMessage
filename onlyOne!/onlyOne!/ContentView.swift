@@ -14,35 +14,35 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
-                // 이모지
+                    // 이모지
                 SafeText(
                     viewModel.questionEmoji,
                     font: .system(size: 80)
                 )
-                .padding(.top, 20)
+                        .padding(.top, 20)
                 .safeTextTransition()
-                
-                // 질문 텍스트
+                    
+                    // 질문 텍스트
                 SafeText(
                     viewModel.questionText,
                     font: .title2,
                     weight: .medium,
                     alignment: .center
                 )
-                .padding(.horizontal)
+                        .padding(.horizontal)
                 .safeTextTransition()
-                
-                // 카테고리 태그
+                    
+                    // 카테고리 태그
                 CategoryTagView(
                     icon: viewModel.categoryIcon(),
                     title: viewModel.categoryDisplayName,
                     color: viewModel.categoryColor
                 )
                 .safeTextTransition()
-                
-                Spacer()
-                
-                // 공유 버튼
+                    
+                    Spacer()
+                    
+                    // 공유 버튼
                 ShareButton(shareText: viewModel.shareQuestion())
                     .padding(.bottom, 30)
             }
@@ -60,9 +60,9 @@ struct ContentView: View {
                 if newPhase == .active {
                     // 앱이 활성화될 때마다 동기화
                     viewModel.refreshQuestionFromUserDefaults()
-                }
             }
         }
+    }
     }
 }
 
@@ -84,9 +84,9 @@ struct CategoryTagView: View {
         .padding(.horizontal, 16)
         .background(Color(color).opacity(0.1))
         .cornerRadius(20)
+        }
     }
-}
-
+    
 struct ShareButton: View {
     let shareText: String
     
