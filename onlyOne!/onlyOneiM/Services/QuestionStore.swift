@@ -77,6 +77,36 @@ class QuestionStore {
         return formatter.string(from: date)
     }
     
+    func getNextQuestion() {
+        let usedIds = Set(userDefaults.stringArray(forKey: usedQuestionIdsKey) ?? [])
+        let availableQuestions = Question.samples.filter { !usedIds.contains($0.id) }
+        
+        let selectedQuestion: Question
+        if availableQuestions.isEmpty {
+            // 모든 질문을 사용했으면 처음부터 다시 시작
+            selectedQuestion = Question.samples.randomElement() ?? Question.samples[0]
+            userDefaults.removeObject(forKey: usedQuestionIdsKey)
+            print("iMessage App - Reset all questions, selected: \(selectedQuestion.id)")
+        } else {
+            selectedQuestion = availableQuestions.randomElement() ?? Question.samples[0]
+            print("iMessage App - Selected from available: \(selectedQuestion.id)")
+        }
+        
+        // 새 질문 저장
+        let today = dateKey(for: Date())
+        userDefaults.set(selectedQuestion.id, forKey: questionIdKey)
+        userDefaults.set(today, forKey: questionDateKey)
+        
+        // 사용된 질문 ID 추가
+        var newUsedIds = usedIds
+        newUsedIds.insert(selectedQuestion.id)
+        userDefaults.set(Array(newUsedIds), forKey: usedQuestionIdsKey)
+        
+        userDefaults.synchronize()
+        
+        print("iMessage App - New question set: \(selectedQuestion.id) - \(selectedQuestion.text)")
+    }
+    
     func resetUsedQuestions() {
         userDefaults.removeObject(forKey: usedQuestionIdsKey)
         userDefaults.removeObject(forKey: questionDateKey)

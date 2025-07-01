@@ -73,17 +73,41 @@ class QuestionStore: ObservableObject {
         return todayQuestion
     }
     
+    func synchronizeFromUserDefaults() {
+        // UserDefaults 강제 동기화
+        userDefaults.synchronize()
+        
+        let today = dateKey(for: Date())
+        let savedDate = userDefaults.string(forKey: questionDateKey) ?? ""
+        
+        // 오늘 날짜와 일치하는 질문이 있는지 확인
+        if savedDate == today {
+            if let questionId = userDefaults.string(forKey: questionIdKey),
+               let question = Question.samples.first(where: { $0.id == questionId }) {
+                // 현재 질문과 다르면 업데이트
+                if question.id != todayQuestion.id {
+                    self.todayQuestion = question
+                }
+                return
+            }
+        }
+        
+        // 저장된 질문이 없으면 새로 로드
+        loadTodayQuestion()
+    }
+    
     func getNextQuestion() {
+        // 백그라운드에서 안전하게 처리
         let usedIds = Set(userDefaults.stringArray(forKey: usedQuestionIdsKey) ?? [])
         let availableQuestions = Question.samples.filter { !usedIds.contains($0.id) }
         
         let selectedQuestion: Question
         if availableQuestions.isEmpty {
             // 모든 질문을 사용했으면 처음부터 다시 시작
-            selectedQuestion = Question.samples.randomElement()!
+            selectedQuestion = Question.samples.randomElement() ?? Question.samples[0]
             userDefaults.removeObject(forKey: usedQuestionIdsKey)
         } else {
-            selectedQuestion = availableQuestions.randomElement()!
+            selectedQuestion = availableQuestions.randomElement() ?? Question.samples[0]
         }
         
         // 새 질문 저장
@@ -96,12 +120,11 @@ class QuestionStore: ObservableObject {
         newUsedIds.insert(selectedQuestion.id)
         userDefaults.set(Array(newUsedIds), forKey: usedQuestionIdsKey)
         
+        // 즉시 동기화
         userDefaults.synchronize()
         
-        // UI 업데이트
-        DispatchQueue.main.async {
-            self.todayQuestion = selectedQuestion
-        }
+        // 안전하게 UI 업데이트
+        self.todayQuestion = selectedQuestion
     }
     
     func resetUsedQuestions() {

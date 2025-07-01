@@ -51,6 +51,15 @@ class MessagesViewController: MSMessagesAppViewController {
         return imageView
     }()
     
+    private lazy var refreshButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+        button.tintColor = .systemBlue
+        button.addTarget(self, action: #selector(refreshButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -75,15 +84,24 @@ class MessagesViewController: MSMessagesAppViewController {
         containerView.addSubview(emojiLabel)
         containerView.addSubview(questionLabel)
         containerView.addSubview(categoryContainer)
+        view.addSubview(refreshButton) // 새로고침 버튼을 메인 뷰에 추가
         
         categoryContainer.addSubview(categoryIcon)
         categoryContainer.addSubview(categoryLabel)
         
         // 제약 조건 설정
         NSLayoutConstraint.activate([
+            // 새로고침 버튼 제약 조건
+            refreshButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            refreshButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+            refreshButton.widthAnchor.constraint(equalToConstant: 30),
+            refreshButton.heightAnchor.constraint(equalToConstant: 30),
+            
+            // 기존 컨테이너 뷰 제약 조건
             containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            containerView.topAnchor.constraint(greaterThanOrEqualTo: refreshButton.bottomAnchor, constant: 10),
             
             emojiLabel.topAnchor.constraint(equalTo: containerView.topAnchor),
             emojiLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
@@ -151,6 +169,21 @@ class MessagesViewController: MSMessagesAppViewController {
                 print("Failed to send message: \(error.localizedDescription)")
             }
         }
+    }
+    
+    @objc private func refreshButtonTapped() {
+        // 버튼 회전 애니메이션
+        UIView.animate(withDuration: 0.5, animations: {
+            self.refreshButton.transform = self.refreshButton.transform.rotated(by: .pi)
+        }) { _ in
+            self.refreshButton.transform = .identity
+        }
+        
+        // 새로운 질문 가져오기
+        questionStore.getNextQuestion()
+        updateQuestion()
+        
+        print("iMessage App - Refresh button tapped, new question loaded")
     }
     
     // MARK: - Conversation Handling
