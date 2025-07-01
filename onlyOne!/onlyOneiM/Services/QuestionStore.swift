@@ -1,9 +1,8 @@
 import Foundation
 
-class QuestionStore: ObservableObject {
+class QuestionStore {
     static let shared = QuestionStore()
     
-    @Published var todayQuestion: Question?
     private let userDefaults: UserDefaults
     private let lastQuestionDateKey = "lastQuestionDate"
     private let lastQuestionIdKey = "lastQuestionId"
@@ -14,10 +13,9 @@ class QuestionStore: ObservableObject {
             fatalError("Failed to initialize UserDefaults with App Group")
         }
         self.userDefaults = userDefaults
-        self.todayQuestion = loadTodayQuestion()
     }
     
-    private func loadTodayQuestion() -> Question {
+    func getTodayQuestion() -> Question {
         let today = Calendar.current.startOfDay(for: Date())
         let lastDate = userDefaults.object(forKey: lastQuestionDateKey) as? Date ?? Date.distantPast
         
@@ -64,6 +62,5 @@ class QuestionStore: ObservableObject {
         userDefaults.removeObject(forKey: usedQuestionIdsKey)
         userDefaults.removeObject(forKey: lastQuestionDateKey)
         userDefaults.removeObject(forKey: lastQuestionIdKey)
-        todayQuestion = loadTodayQuestion()
     }
 } 
