@@ -10,7 +10,7 @@ class QuestionStore: ObservableObject {
     private let usedQuestionIdsKey = "usedQuestionIds"
     
     private init() {
-        guard let userDefaults = UserDefaults(suiteName: "group.com.Wonjun.OnlyOne.foriMessage") else {
+        guard let userDefaults = UserDefaults(suiteName: "group.com.Wonjun.onlyOne-") else {
             fatalError("Failed to initialize UserDefaults with App Group")
         }
         self.userDefaults = userDefaults

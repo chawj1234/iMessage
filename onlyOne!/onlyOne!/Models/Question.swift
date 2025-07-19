@@ -46,6 +46,20 @@ struct Question: Codable, Identifiable {
         Question(id: "12", text: "지금 가장 설레는 순간은 언제야?", category: .present, emoji: "💓"),
         Question(id: "13", text: "우리의 결혼식은 어떤 모습일까?", category: .future, emoji: "👰"),
         Question(id: "14", text: "서로의 장점을 바꿀 수 있다면 어떤 걸 바꾸고 싶어?", category: .imagination, emoji: "🔄"),
-        Question(id: "15", text: "처음 고백했던 순간이 기억나?", category: .memory, emoji: "💘")
+        Question(id: "15", text: "처음 고백했던 순간이 기억나?", category: .memory, emoji: "💘"),
+        Question(id: "16", text: "나를 처음 봤을 때, 속으로 했던 첫 생각은? (3초 안에!)", category: .memory, emoji: "🤔"),
+        Question(id: "17", text: "'이 사람이랑 연애하고 싶다!' 라고 마음먹게 된 결정적인 순간은 언제야?", category: .memory, emoji: "😍"),
+        Question(id: "18", text: "나에게 가장 감동이었던 당신의 말이나 행동은?", category: .memory, emoji: "🥹"),
+        Question(id: "19", text: "절대 포기 못하는 '나만의 소울푸드'는?", category: .present, emoji: "🍕"),
+        Question(id: "20", text: "나는 '아침형 인간' vs '저녁형 인간' 중 어느 쪽에 더 가까울 것 같아?", category: .present, emoji: "☀️🌙"),
+        Question(id: "21", text: "내가 가장 웃겨 보일 때는 언제야?", category: .present, emoji: "🤣"),
+        Question(id: "22", text: "내게서 가장 배우고 싶은 점이 있다면?", category: .present, emoji: "💡"),
+        Question(id: "23", text: "우리의 '공식 테마송'을 정한다면 어떤 노래가 좋을까?", category: .future, emoji: "🎵"),
+        Question(id: "24", text: "여름휴가로 '북적이는 도시' vs '한적한 자연' 중 어딜 더 좋아할 것 같아?", category: .future, emoji: "✈️"),
+        Question(id: "25", text: "우리 둘이 각자 초능력을 하나씩 가질 수 있다면, 어떤 능력을 갖고 싶어?", category: .imagination, emoji: "🪄"),
+        Question(id: "26", text: "만약 우리가 로또 1등에 당첨된다면, 가장 먼저 하고 싶은 딱 한 가지는?", category: .imagination, emoji: "🤑"),
+        Question(id: "27", text: "우리를 동물 한 쌍에 비유한다면? (예: 늘 붙어 다니는 펭귄 커플!)", category: .imagination, emoji: "🐧💕"),
+        Question(id: "28", text: "우리가 주인공인 영화를 만든다면, 가장 어울리는 장르는 뭘까?", category: .imagination, emoji: "🍿")
+
     ]
 } 
